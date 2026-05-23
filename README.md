@@ -1,8 +1,15 @@
-# Closira Backend
+<h1 align="center">Closira Backend</h1>
 
-![Closira Header](./docs/assets/placeholder_banner.png)
+<p align="center">
+  <img src="Backend/docs/screenshots/header.png" width="900" alt="Closira Banner"/>
+</p>
 
-An AI-powered customer communication platform backend for SMBs. This service intelligently routes WhatsApp messages, Emails, and Calls using predefined SOP rules, automates responses, schedules follow-ups, and manages manual escalations.
+<p align="center">
+  <strong>An AI-powered customer communication platform backend for SMBs.</strong><br>
+  <em>Intelligently routes WhatsApp messages, Emails, and Calls using predefined SOP rules, automates responses, schedules follow-ups, and manages manual escalations.</em>
+</p>
+
+<br>
 
 Closira is designed with a strong emphasis on production-inspired engineering practices, including structured logging, concurrency protection, and event sourcing.
 
@@ -15,6 +22,38 @@ Closira is designed with a strong emphasis on production-inspired engineering pr
 *   **Structured JSON Logging:** Fully machine-parseable logs ready for ELK/Datadog ingestion, featuring request correlation IDs (`X-Correlation-ID`) across middleware and execution threads.
 *   **Concurrency Race-Condition Guards:** Advanced background task validation prevents stale data overwrites if an agent manually escalates an enquiry mid-processing.
 *   **Domain Exception Handling:** Clean architectural boundaries. The service layer throws transport-agnostic domain exceptions (`EnquiryNotFoundError`), leaving the framework layer (`main.py`) to map them to HTTP responses.
+
+---
+
+## 📸 Screenshots
+
+<!-- 
+### Architecture Diagram
+<p align="center">
+  <img src="Backend/docs/screenshots/architecture.png" width="850" alt="Architecture Flow"/>
+</p>
+-->
+
+<!-- 
+### API Swagger Documentation
+<p align="center">
+  <img src="Backend/docs/screenshots/swagger.png" width="850" alt="Swagger API"/>
+</p>
+-->
+
+<!-- 
+### Event Workflow Timeline
+<p align="center">
+  <img src="Backend/docs/screenshots/workflow.png" width="850" alt="Timeline Audit"/>
+</p>
+-->
+
+<!-- 
+### Structured JSON Logs
+<p align="center">
+  <img src="Backend/docs/screenshots/logs.png" width="850" alt="Structured Logs"/>
+</p>
+-->
 
 ---
 
@@ -34,6 +73,7 @@ Backend/
 │   ├── services/             # Core business logic & database transactions
 │   └── utils/                # Domain exceptions and helpers
 ├── docs/                     # Architecture & Demo documentation
+│   └── screenshots/          # Documentation assets and architecture diagrams
 ├── tests/                    # Unit testing configurations
 ├── verify_backend.py         # End-to-End automated validation script
 ├── requirements.txt          # Pinned dependencies
@@ -97,8 +137,8 @@ python verify_backend.py
 ## 📚 Documentation
 
 For deeper dives into the system design and how to run a live demo:
-*   [Architecture Documentation](docs/architecture.md) — Explains the request lifecycle, scalability tradeoffs, and background task safety.
-*   [Demo Walkthrough Guide](docs/demo_walkthrough.md) — A step-by-step guide for testing the API workflows in Swagger.
+*   [Architecture Documentation](Backend/docs/architecture.md) — Explains the request lifecycle, scalability tradeoffs, and background task safety.
+*   [Demo Walkthrough Guide](Backend/docs/demo_walkthrough.md) — A step-by-step guide for testing the API workflows in Swagger.
 
 ---
 
