@@ -11,7 +11,6 @@ Closira is a decoupled, full-stack workflow engine designed to ingest, classify,
 ## 📹 Video Walkthrough
 
 > **[Click here to watch the system walkthrough](https://your-video-link-here)**  
-> *(Note: Replace with actual video link for judging rounds).*
 
 ---
 
