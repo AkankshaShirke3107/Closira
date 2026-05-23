@@ -27,12 +27,10 @@ Closira is designed with a strong emphasis on production-inspired engineering pr
 
 ## 📸 Screenshots
 
-<!-- 
 ### Architecture Diagram
 <p align="center">
   <img src="Backend/docs/screenshots/architecture.png" width="850" alt="Architecture Flow"/>
 </p>
--->
 
 <!-- 
 ### API Swagger Documentation
@@ -41,12 +39,10 @@ Closira is designed with a strong emphasis on production-inspired engineering pr
 </p>
 -->
 
-<!-- 
 ### Event Workflow Timeline
 <p align="center">
   <img src="Backend/docs/screenshots/workflow.png" width="850" alt="Timeline Audit"/>
 </p>
--->
 
 <!-- 
 ### Structured JSON Logs
