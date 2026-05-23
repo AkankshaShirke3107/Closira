@@ -29,7 +29,7 @@ Closira is designed with a strong emphasis on production-inspired engineering pr
 
 ### Architecture & Workflow Diagram
 <p align="center">
-  <img src="Backend/docs/screenshots/architecture.png" width="850" alt="Closira Architecture and Workflow"/>
+  <img src="Backend/docs/screenshots/architecture_v2.png" width="100%" alt="Closira Architecture and Workflow"/>
 </p>
 
 <!-- 
