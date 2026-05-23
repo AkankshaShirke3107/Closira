@@ -30,12 +30,10 @@ Closira is designed with a strong emphasis on production-inspired engineering pr
   <img src="Backend/docs/screenshots/architecture_v2.png" width="100%" alt="Closira Architecture and Workflow"/>
 </p>
 
-<!-- 
-### Structured JSON Logs
+### API Swagger Documentation
 <p align="center">
-  <img src="Backend/docs/screenshots/logs.png" width="850" alt="Structured Logs"/>
+  <img src="Backend/docs/screenshots/swagger.png" width="100%" alt="Swagger API"/>
 </p>
--->
 
 ---
 
