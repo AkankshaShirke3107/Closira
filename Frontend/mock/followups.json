@@ -1,0 +1,30 @@
+[
+  {
+    "id": "fu_001",
+    "customer": "James Rodriguez",
+    "dueAt": "2025-05-23T14:00:00Z",
+    "messagePreview": "Send enterprise demo link and pricing sheet as discussed.",
+    "isDone": false
+  },
+  {
+    "id": "fu_002",
+    "customer": "David Chen",
+    "dueAt": "2025-05-23T16:30:00Z",
+    "messagePreview": "Confirm onboarding date and send welcome package details.",
+    "isDone": false
+  },
+  {
+    "id": "fu_003",
+    "customer": "Emily Watson",
+    "dueAt": "2025-05-23T11:00:00Z",
+    "messagePreview": "Share updated return policy document and warranty FAQ.",
+    "isDone": false
+  },
+  {
+    "id": "fu_004",
+    "customer": "Arjun Patel",
+    "dueAt": "2025-05-24T10:00:00Z",
+    "messagePreview": "Call back with bulk pricing quote for 50+ units.",
+    "isDone": false
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "esc_001",
+    "customer": "Priya Sharma",
+    "channel": "call",
+    "reason": "Pricing complaint — threatened to cancel subscription",
+    "urgency": "high",
+    "receivedAt": "2025-05-23T07:30:00Z",
+    "summary": "Customer unhappy with renewal quote. Requested manager callback immediately.",
+    "conversationId": "conv_003"
+  },
+  {
+    "id": "esc_002",
+    "customer": "Sarah Mitchell",
+    "channel": "whatsapp",
+    "reason": "Unresolved issue after 3 follow-ups",
+    "urgency": "high",
+    "receivedAt": "2025-05-23T06:45:00Z",
+    "summary": "Customer has been waiting 5 days for a resolution. Escalated by system.",
+    "conversationId": "conv_001"
+  },
+  {
+    "id": "esc_003",
+    "customer": "Robert Kim",
+    "channel": "email",
+    "reason": "Product defect reported",
+    "urgency": "medium",
+    "receivedAt": "2025-05-22T15:20:00Z",
+    "summary": "Received damaged goods. Requesting full refund or immediate replacement.",
+    "conversationId": "conv_002"
+  },
+  {
+    "id": "esc_004",
+    "customer": "Lisa Thompson",
+    "channel": "whatsapp",
+    "reason": "Billing discrepancy",
+    "urgency": "medium",
+    "receivedAt": "2025-05-22T12:10:00Z",
+    "summary": "Overcharged on last invoice. Customer is frustrated with support response time.",
+    "conversationId": "conv_001"
+  }
+]

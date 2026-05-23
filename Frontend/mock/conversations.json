@@ -1,0 +1,60 @@
+[
+  {
+    "id": "conv_001",
+    "customer": "Sarah Mitchell",
+    "channel": "whatsapp",
+    "status": "qualified",
+    "sopMatch": "Pricing Inquiry SOP",
+    "aiSummary": "Customer is comparing premium vs. starter plans. Expressed strong interest in annual billing discount. Recommended sending comparison sheet and scheduling a 15-min call to close.",
+    "timeline": [
+      { "status": "new", "timestamp": "2025-05-23T09:14:00Z", "label": "Enquiry received" },
+      { "status": "processing", "timestamp": "2025-05-23T09:14:02Z", "label": "SOP matching started" },
+      { "status": "qualified", "timestamp": "2025-05-23T09:14:05Z", "label": "Matched: Pricing Inquiry SOP" }
+    ],
+    "messages": [
+      { "id": "m1", "sender": "customer", "text": "Hi, I saw your premium plan. Can you tell me the difference between starter and premium?", "timestamp": "2025-05-23T09:14:00Z" },
+      { "id": "m2", "sender": "ai", "text": "Hello Sarah! Great question. The Premium plan includes priority support, advanced analytics, and custom integrations. I can send you a detailed comparison. Would that help?", "timestamp": "2025-05-23T09:14:30Z" },
+      { "id": "m3", "sender": "customer", "text": "Yes please! Also, do you have any annual billing discounts?", "timestamp": "2025-05-23T09:15:00Z" },
+      { "id": "m4", "sender": "ai", "text": "Absolutely! We offer 20% off on annual billing for both plans. I'll send the comparison sheet right away. Would you also like to schedule a quick call with our team?", "timestamp": "2025-05-23T09:15:30Z" },
+      { "id": "m5", "sender": "customer", "text": "That sounds great. Let's do Thursday afternoon.", "timestamp": "2025-05-23T09:16:00Z" }
+    ]
+  },
+  {
+    "id": "conv_002",
+    "customer": "James Rodriguez",
+    "channel": "email",
+    "status": "qualified",
+    "sopMatch": "Enterprise Demo SOP",
+    "aiSummary": "Enterprise lead requesting integration demo. High-value prospect with a team of 200+. Needs API documentation and compliance certifications before proceeding.",
+    "timeline": [
+      { "status": "new", "timestamp": "2025-05-23T08:45:00Z", "label": "Email received" },
+      { "status": "processing", "timestamp": "2025-05-23T08:45:03Z", "label": "SOP matching started" },
+      { "status": "qualified", "timestamp": "2025-05-23T08:45:06Z", "label": "Matched: Enterprise Demo SOP" }
+    ],
+    "messages": [
+      { "id": "m1", "sender": "customer", "text": "We're evaluating communication platforms for our 200+ person team. Can you share API docs and compliance certs?", "timestamp": "2025-05-23T08:45:00Z" },
+      { "id": "m2", "sender": "ai", "text": "Thank you for reaching out, James! I'd be happy to share our API documentation and SOC 2 compliance certifications. Can I also schedule a personalized demo for your team?", "timestamp": "2025-05-23T08:46:00Z" },
+      { "id": "m3", "sender": "customer", "text": "Yes, a demo would be great. We need to see the integration capabilities firsthand.", "timestamp": "2025-05-23T08:50:00Z" }
+    ]
+  },
+  {
+    "id": "conv_003",
+    "customer": "Priya Sharma",
+    "channel": "call",
+    "status": "escalated",
+    "sopMatch": "Complaint Handling SOP",
+    "aiSummary": "Customer is frustrated with delayed delivery and renewal pricing. Has threatened cancellation. Requires immediate manager callback and potential discount offer to retain.",
+    "timeline": [
+      { "status": "new", "timestamp": "2025-05-23T07:30:00Z", "label": "Call received" },
+      { "status": "processing", "timestamp": "2025-05-23T07:30:02Z", "label": "SOP matching started" },
+      { "status": "qualified", "timestamp": "2025-05-23T07:30:05Z", "label": "Matched: Complaint Handling SOP" },
+      { "status": "escalated", "timestamp": "2025-05-23T07:31:00Z", "label": "Escalated: Customer requested manager" }
+    ],
+    "messages": [
+      { "id": "m1", "sender": "customer", "text": "I've been waiting over a week for my order. This is completely unacceptable!", "timestamp": "2025-05-23T07:30:00Z" },
+      { "id": "m2", "sender": "ai", "text": "I sincerely apologize for the delay, Priya. Let me look into your order status immediately. Can you share your order number?", "timestamp": "2025-05-23T07:30:15Z" },
+      { "id": "m3", "sender": "customer", "text": "Order #4821. And your renewal price went up 30%! I want to talk to a manager right now.", "timestamp": "2025-05-23T07:30:45Z" },
+      { "id": "m4", "sender": "ai", "text": "I completely understand your frustration. I'm escalating this to our management team right away. A manager will call you back within the hour.", "timestamp": "2025-05-23T07:31:00Z" }
+    ]
+  }
+]

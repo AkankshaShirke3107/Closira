@@ -1,0 +1,56 @@
+[
+  {
+    "id": "enq_001",
+    "customer": "Sarah Mitchell",
+    "channel": "whatsapp",
+    "status": "new",
+    "receivedAt": "2025-05-23T09:14:00Z",
+    "summary": "Asking about premium plan pricing and features comparison.",
+    "conversationId": "conv_001"
+  },
+  {
+    "id": "enq_002",
+    "customer": "James Rodriguez",
+    "channel": "email",
+    "status": "qualified",
+    "receivedAt": "2025-05-23T08:45:00Z",
+    "summary": "Interested in enterprise integration. Requested a demo call.",
+    "conversationId": "conv_002"
+  },
+  {
+    "id": "enq_003",
+    "customer": "Priya Sharma",
+    "channel": "call",
+    "status": "escalated",
+    "receivedAt": "2025-05-23T07:30:00Z",
+    "summary": "Unhappy with delayed delivery. Wants to speak to a manager.",
+    "conversationId": "conv_003"
+  },
+  {
+    "id": "enq_004",
+    "customer": "David Chen",
+    "channel": "whatsapp",
+    "status": "qualified",
+    "receivedAt": "2025-05-22T16:20:00Z",
+    "summary": "Confirmed interest in the starter package. Ready to onboard.",
+    "conversationId": "conv_001"
+  },
+  {
+    "id": "enq_005",
+    "customer": "Emily Watson",
+    "channel": "email",
+    "status": "new",
+    "receivedAt": "2025-05-22T14:50:00Z",
+    "summary": "General inquiry about return policy and warranty terms.",
+    "conversationId": "conv_002"
+  },
+  {
+    "id": "enq_006",
+    "customer": "Arjun Patel",
+    "channel": "call",
+    "status": "new",
+    "receivedAt": "2025-05-22T11:15:00Z",
+    "summary": "Wants bulk pricing for 50+ units. Needs a callback.",
+    "conversationId": "conv_003"
+  }
+]
