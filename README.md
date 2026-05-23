@@ -51,7 +51,7 @@ Traditional CRUD applications fail when managing complex, asynchronous workflows
 
 ### Architecture & Data Flow
 <p align="center">
-  <img src="Backend/docs/screenshots/architecture_v2.png" width="100%" alt="Closira Architecture and Workflow"/>
+  <img src="Backend/docs/screenshots/System Architecture.png" width="100%" alt="Closira System Architecture"/>
 </p>
 
 ### API Interface
