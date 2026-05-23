@@ -1,17 +1,17 @@
-<h1 align="center">Closira Backend</h1>
+<h1 align="center">Closira</h1>
 
 <p align="center">
   <img src="Backend/docs/screenshots/header.png" width="100%" alt="Closira Banner"/>
 </p>
 
 <p align="center">
-  <strong>An AI-powered customer communication platform backend for SMBs.</strong><br>
-  <em>Intelligently routes WhatsApp messages, Emails, and Calls using predefined SOP rules, automates responses, schedules follow-ups, and manages manual escalations.</em>
+  <strong>An AI-powered customer communication platform for SMBs.</strong><br>
+  <em>Features a React Native mobile dashboard and a robust FastAPI backend that intelligently routes messages, automates responses, schedules follow-ups, and manages escalations.</em>
 </p>
 
 <br>
 
-Closira is designed with a strong emphasis on production-inspired engineering practices, including structured logging, concurrency protection, and event sourcing.
+Closira is designed with a strong emphasis on production-inspired engineering practices, separating the stack into a zero-config [Frontend App](Frontend/README.md) and an event-sourced [Backend API](Backend/docs/architecture.md).
 
 ---
 
@@ -44,34 +44,48 @@ Closira is designed with a strong emphasis on production-inspired engineering pr
 ## 📂 Project Structure
 
 ```text
-Backend/
-├── app/
-│   ├── config.py             # Pydantic BaseSettings config
-│   ├── database.py           # SQLAlchemy setup and session factory
-│   ├── main.py               # FastAPI entry point, exception handlers, middleware
-│   ├── logging/              # Structured JSON formatting & configuration
-│   ├── mock_sops/            # Side-effect-free keyword matching & templates
-│   ├── models/               # SQLAlchemy ORM models (Enquiry, Event)
-│   ├── routers/              # HTTP layer (Thin controllers)
-│   ├── schemas/              # Pydantic validation (Input/Output contracts)
-│   ├── services/             # Core business logic & database transactions
-│   └── utils/                # Domain exceptions and helpers
-├── docs/                     # Architecture & Demo documentation
-│   └── screenshots/          # Documentation assets and architecture diagrams
-├── tests/                    # Unit testing configurations
-├── verify_backend.py         # End-to-End automated validation script
-├── requirements.txt          # Pinned dependencies
-└── .env                      # Local environment configuration
+Closira/
+├── Frontend/                 # React Native Mobile Dashboard (Expo)
+│   ├── components/           # Reusable UI cards and badges
+│   ├── constants/            # Design system (colors, typography)
+│   ├── mock/                 # Local JSON data (no backend needed)
+│   ├── navigation/           # Bottom tabs and stack navigation
+│   └── screens/              # Dashboard, Leads, Escalations views
+├── Backend/                  # FastAPI Python Backend
+│   ├── app/                  # Main application, ORM, routers, services
+│   ├── docs/                 # Architecture & Demo documentation
+│   ├── tests/                # Unit testing
+│   └── verify_backend.py     # End-to-End automated validation script
+└── README.md
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### Prerequisites
-*   Python 3.10+
+The project is split into two runnable environments.
 
-### Local Setup
+### 📱 1. Mobile App (Frontend)
+A fully modular React Native dashboard using local mock data.
+
+1. **Navigate to the frontend**
+   ```bash
+   cd Frontend
+   ```
+2. **Install & Run**
+   ```bash
+   npm install
+   npx expo start
+   ```
+*(For detailed UI notes, see the [Frontend README](Frontend/README.md))*
+
+---
+
+### ⚙️ 2. API Server (Backend)
+
+*   **Prerequisites:** Python 3.10+
+
+#### Local Setup
 
 1. **Clone the repository and enter the Backend directory**
    ```bash
