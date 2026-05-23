@@ -421,22 +421,9 @@ Services raise domain exceptions (`EnquiryNotFoundError`), not `HTTPException`. 
 
 ## 12. Data Model
 
-```text
-┌────────────────────┐       1:N       ┌──────────────────┐
-│     Enquiry         │───────────────→ │     Event          │
-│ (root aggregate)    │                │ (append-only log)  │
-│                    │       1:N       ├──────────────────┤
-│ id (UUID PK)       │───────────────→ │     Message        │
-│ customer_name      │                │ (conversation     │
-│ channel (enum)     │       1:1       │  thread nodes)     │
-│ message            │───────────────→ ├──────────────────┤
-│ status (FSM enum)  │                │     Insight        │
-│ sop_category       │                │ (AI sidecar)       │
-│ suggested_response │                │ sentiment_score    │
-│ created_at         │                │ risk_score         │
-│ updated_at         │                │ priority_level     │
-└────────────────────┘                └──────────────────┘
-```
+<p align="center">
+  <img src="Backend/docs/screenshots/data_model.png" width="100%" alt="Closira Data Model"/>
+</p>
 
 - **Enquiry:** Root aggregate. Holds the current state snapshot, customer data, and SOP classification result.
 - **Event:** Append-only timeline log. Never updated, never deleted. Each event captures one state change or system action.
