@@ -1,3 +1,13 @@
+# Closira
+
+An event-driven AI-powered CRM that transforms raw customer enquiries into structured, prioritized, and auditable workflows in real time.
+
+Built with:
+- Deterministic AI scoring (no LLM dependency)
+- Event-sourced architecture
+- Background workflow orchestration
+- Mobile-first operations dashboard
+
 <p align="center">
   <img src="Backend/docs/screenshots/header.png" width="100%" alt="Closira Banner"/>
 </p>
