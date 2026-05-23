@@ -22,6 +22,8 @@ from app.schemas.enquiry import (
     EnquiryFollowUpRequest,
     EnquiryEscalateRequest,
     EnquiryHistoryResponse,
+    EnquiryWithMessagesResponse,
+    DashboardStatsResponse,
 )
 from app.services.enquiry_service import (
     create_enquiry,
@@ -30,6 +32,8 @@ from app.services.enquiry_service import (
     escalate_enquiry_manual,
     get_enquiry_history,
     list_enquiries,
+    get_enquiry_with_messages,
+    get_dashboard_stats,
 )
 from app.logging.config import get_logger
 
@@ -78,6 +82,23 @@ def create_new_enquiry(
         extra={"extra_data": {"enquiry_id": enquiry.id}},
     )
     return enquiry
+
+
+@router.get(
+    "/{id}",
+    response_model=EnquiryWithMessagesResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve an enquiry with its full message thread",
+    description=(
+        "Fetches the details of a customer enquiry along with the complete chronological "
+        "conversation thread (including both customer messages and AI/System responses)."
+    ),
+)
+def get_enquiry(
+    id: str = Path(..., description="Unique enquiry identifier (UUID)"),
+    db: Session = Depends(get_db),
+):
+    return get_enquiry_with_messages(db=db, enquiry_id=id)
 
 
 @router.post(
@@ -145,6 +166,19 @@ def get_enquiry_timeline(
 # ===========================================================================
 # Plural Enquiries Endpoints
 # ===========================================================================
+
+@router_plural.get(
+    "/stats",
+    response_model=DashboardStatsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Retrieve dashboard statistics",
+    description=(
+        "Returns aggregated metrics for the dashboard frontend. "
+        "Computes counts using optimized database aggregation queries rather than fetching the whole dataset."
+    ),
+)
+def get_stats(db: Session = Depends(get_db)):
+    return get_dashboard_stats(db=db)
 
 @router_plural.get(
     "/",
