@@ -32,6 +32,7 @@ from sqlalchemy.orm import Session
 
 from app.models.enquiry import Enquiry, EnquiryStatus, ChannelType
 from app.models.event import Event, EventType
+from app.models.message import Message, MessageSender
 from app.schemas.enquiry import EnquiryCreate
 from app.logging.config import get_logger
 from app.utils.exceptions import EnquiryNotFoundError
@@ -81,6 +82,21 @@ def create_enquiry(db: Session, enquiry_data: EnquiryCreate) -> Enquiry:
                 f"from {enquiry.customer_name}."
             ),
         )
+
+        # Create the initial customer message
+        create_message(
+            db=db,
+            enquiry_id=enquiry.id,
+            sender=MessageSender.CUSTOMER,
+            text=enquiry_data.message,
+        )
+
+        # Generate AI insights (sentiment, risk, priority)
+        from app.services.ai_insights_service import generate_insights
+        insight = generate_insights(enquiry)
+        db.add(insight)
+        db.commit()
+        db.refresh(enquiry)
 
         return enquiry
 
@@ -132,6 +148,47 @@ def create_event(
         db.rollback()
         logger.error(
             f"Failed to create event for enquiry {enquiry_id}: {str(e)}",
+            extra={"extra_data": {"enquiry_id": enquiry_id, "error": str(e)}},
+            exc_info=True,
+        )
+        raise
+
+
+def create_message(
+    db: Session,
+    enquiry_id: str,
+    sender: MessageSender,
+    text: str,
+) -> Message:
+    """
+    Create a new message in the conversation thread.
+    """
+    try:
+        message = Message(
+            enquiry_id=enquiry_id,
+            sender=sender,
+            text=text,
+        )
+
+        db.add(message)
+        db.commit()
+        db.refresh(message)
+
+        logger.info(
+            f"Message logged: sender={sender.value}",
+            extra={"extra_data": {
+                "message_id": message.id,
+                "enquiry_id": enquiry_id,
+                "sender": sender.value,
+            }},
+        )
+
+        return message
+
+    except Exception as e:
+        db.rollback()
+        logger.error(
+            f"Failed to create message for enquiry {enquiry_id}: {str(e)}",
             extra={"extra_data": {"enquiry_id": enquiry_id, "error": str(e)}},
             exc_info=True,
         )
@@ -237,6 +294,14 @@ def process_enquiry_background(enquiry_id: str) -> None:
                     f"Keyword: '{match_result.matched_keyword}'. "
                     f"Suggested response generated."
                 ),
+            )
+
+            # Insert AI suggested response into the conversation thread
+            create_message(
+                db=db,
+                enquiry_id=enquiry_id,
+                sender=MessageSender.AI,
+                text=match_result.suggested_response,
             )
 
             # Log the status change event
@@ -471,3 +536,48 @@ def list_enquiries(
         query = query.filter(Enquiry.channel == channel)
 
     return query.order_by(Enquiry.created_at.desc()).limit(limit).all()
+
+
+def get_enquiry_with_messages(db: Session, enquiry_id: str) -> Enquiry:
+    """
+    Retrieve an enquiry along with its complete message thread.
+    """
+    enquiry = db.query(Enquiry).filter(Enquiry.id == enquiry_id).first()
+
+    if not enquiry:
+        logger.warning(f"Enquiry not found for fetching messages: {enquiry_id}")
+        raise EnquiryNotFoundError(f"Enquiry with ID {enquiry_id} not found.")
+
+    return enquiry
+
+
+def get_dashboard_stats(db: Session) -> dict:
+    """
+    Aggregate database metrics for the frontend dashboard.
+    Uses highly optimized SQL COUNT queries rather than fetching the dataset.
+    """
+    from sqlalchemy import func
+    from datetime import datetime, timedelta, timezone
+
+    # 1. Total Leads Today (Enquiries currently in NEW state)
+    total_leads = db.query(func.count(Enquiry.id)).filter(Enquiry.status == EnquiryStatus.NEW).scalar() or 0
+
+    # 2. Missed Enquiries (NEW state older than 2 hours)
+    two_hours_ago = datetime.now(timezone.utc) - timedelta(hours=2)
+    missed_enquiries = db.query(func.count(Enquiry.id)).filter(
+        Enquiry.status == EnquiryStatus.NEW,
+        Enquiry.created_at < two_hours_ago
+    ).scalar() or 0
+
+    # 3. Open Escalations
+    open_escalations = db.query(func.count(Enquiry.id)).filter(Enquiry.status == EnquiryStatus.ESCALATED).scalar() or 0
+
+    # 4. Follow-Ups Due
+    follow_ups_due = db.query(func.count(Enquiry.id)).filter(Enquiry.status == EnquiryStatus.FOLLOW_UP_SCHEDULED).scalar() or 0
+
+    return {
+        "totalLeadsToday": total_leads,
+        "missedEnquiries": missed_enquiries,
+        "openEscalations": open_escalations,
+        "followUpsDue": follow_ups_due
+    }

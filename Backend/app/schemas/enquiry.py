@@ -23,6 +23,8 @@ from pydantic import BaseModel, Field
 
 from app.models.enquiry import ChannelType, EnquiryStatus
 from app.models.event import EventType
+from app.models.message import MessageSender
+from app.models.insight import SentimentLabel, PriorityLevel
 
 
 # ---------------------------------------------------------------------------
@@ -64,6 +66,27 @@ class EnquiryCreate(BaseModel):
 # ---------------------------------------------------------------------------
 # Response Schemas (what the client receives)
 # ---------------------------------------------------------------------------
+
+class AIInsightsResponse(BaseModel):
+    """
+    Schema representing the AI-computed intelligence metadata for an enquiry.
+
+    Field aliases bridge the database column names to the clean API field names:
+    - sentiment_label (DB) → sentiment (API)
+    - escalation_risk_score (DB) → risk_score (API)
+    - priority_level (DB) → priority (API)
+    """
+    sentiment: SentimentLabel = Field(..., alias="sentiment_label", description="Sentiment classification (positive/neutral/negative).")
+    sentiment_score: float = Field(..., description="Sentiment polarity score from -1.0 to +1.0.")
+    risk_score: int = Field(..., alias="escalation_risk_score", description="Escalation risk score from 0 to 100.")
+    priority: PriorityLevel = Field(..., alias="priority_level", description="Auto-computed priority tier (P0/P1/P2).")
+    reason: str = Field(..., description="Human-readable explanation of the classification.")
+
+    model_config = {
+        "from_attributes": True,
+        "populate_by_name": True,
+    }
+
 
 class EnquiryResponse(BaseModel):
     """
@@ -110,6 +133,10 @@ class EnquiryResponse(BaseModel):
     updated_at: datetime = Field(
         ...,
         description="Timestamp when the enquiry was last updated.",
+    )
+    ai_insights: Optional[AIInsightsResponse] = Field(
+        None,
+        description="AI-computed intelligence metadata (sentiment, risk, priority).",
     )
 
     model_config = {
@@ -231,3 +258,41 @@ class EnquiryHistoryResponse(EnquiryResponse):
             ]
         },
     }
+
+
+class MessageResponse(BaseModel):
+    """
+    Schema representing a single message in a conversation thread.
+    """
+    id: str = Field(..., description="Unique message identifier (UUID).")
+    sender: MessageSender = Field(..., description="Who sent the message (customer, ai, or system).")
+    text: str = Field(..., description="The message content.")
+    timestamp: datetime = Field(..., description="When the message was sent.")
+
+    model_config = {
+        "from_attributes": True,
+    }
+
+
+class EnquiryWithMessagesResponse(EnquiryResponse):
+    """
+    Schema exposing the enquiry details along with the full message thread.
+    """
+    messages: list[MessageResponse] = Field(
+        ...,
+        description="The chronologically ordered conversation thread.",
+    )
+
+    model_config = {
+        "from_attributes": True,
+    }
+
+
+class DashboardStatsResponse(BaseModel):
+    """
+    Schema for the high-level metrics needed by the dashboard frontend.
+    """
+    totalLeadsToday: int = Field(..., description="Count of enquiries currently in 'new' state.")
+    missedEnquiries: int = Field(..., description="Count of 'new' enquiries older than 2 hours.")
+    openEscalations: int = Field(..., description="Count of enquiries currently in 'escalated' state.")
+    followUpsDue: int = Field(..., description="Count of enquiries currently in 'follow_up_scheduled' state.")

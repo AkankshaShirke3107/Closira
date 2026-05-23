@@ -11,4 +11,6 @@
 # are registered when the package is imported.
 
 from app.models.enquiry import Enquiry, EnquiryStatus, ChannelType  # noqa: F401
-from app.models.event import Event  # noqa: F401
+from app.models.event import Event, EventType  # noqa: F401
+from app.models.message import Message, MessageSender  # noqa: F401
+from app.models.insight import EnquiryInsight, SentimentLabel, PriorityLevel  # noqa: F401

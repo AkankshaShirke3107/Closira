@@ -134,5 +134,19 @@ class Enquiry(Base):
         order_by="Event.created_at",
     )
 
+    messages = relationship(
+        "Message",
+        back_populates="enquiry",
+        cascade="all, delete-orphan",
+        order_by="Message.timestamp",
+    )
+
+    ai_insights = relationship(
+        "EnquiryInsight",
+        back_populates="enquiry",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
     def __repr__(self):
         return f"<Enquiry(id={self.id}, status={self.status}, channel={self.channel})>"
