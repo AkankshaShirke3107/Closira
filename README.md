@@ -1,5 +1,3 @@
-<h1 align="center">Closira</h1>
-
 <p align="center">
   <img src="Backend/docs/screenshots/header.png" width="100%" alt="Closira Banner"/>
 </p>
