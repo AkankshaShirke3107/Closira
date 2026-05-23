@@ -1,163 +1,111 @@
-# Closira — AI-Powered Customer Communication Platform Backend
+# Closira Backend
 
-Closira is a highly polished, production-grade backend service designed to help small and medium businesses (SMBs) seamlessly manage customer enquiries from multiple communication channels (WhatsApp, Email, Calls). 
+![Closira Header](./docs/assets/placeholder_banner.png)
 
-It automatically classifies incoming customer queries using an intelligent, rule-based **SOP (Standard Operating Procedure) Matching Engine**, generates context-aware suggested template responses, records an append-only historical audit timeline, and supports critical operational customer workflows (follow-up scheduling and manual escalations).
+An AI-powered customer communication platform backend for SMBs. This service intelligently routes WhatsApp messages, Emails, and Calls using predefined SOP rules, automates responses, schedules follow-ups, and manages manual escalations.
+
+Closira is designed with a strong emphasis on production-inspired engineering practices, including structured logging, concurrency protection, and event sourcing.
 
 ---
 
 ## 🌟 Key Features
 
-*   **FastAPI Asynchronous Ingestion:** Instantly accepts incoming enquiries and returns a `201 Created` status with unique tracking UUIDs, processing the SOP logic in the background without blocking the client.
-*   **Modular SOP Matching Engine:** A structured, keyword-driven rule engine supporting five default business categories:
-    *   *Booking enquiry* (triggered by keywords like *book, schedule, reserve*)
-    *   *Pricing enquiry* (triggered by keywords like *pricing, price, quote, rate, cost*)
-    *   *Complaint* (triggered by keywords like *unhappy, complaint, bad, worst, terrible*)
-    *   *Support request* (triggered by keywords like *help, support, issue, broken, error*)
-    *   *After-hours message* (triggered by keywords like *hours, open, close, holiday*)
-*   **Operational Lifecycle Workflows:** Full-featured business logic endpoints supporting:
-    *   `POST /enquiry/{id}/follow-up` - Transition status to `follow_up_scheduled` and log delay constraints.
-    *   `POST /enquiry/{id}/escalate` - Transition status to `escalated` and attach manual comments.
-    *   `GET /enquiry/{id}/history` - Retrieve a detailed, sorted chronological audit timeline log.
-    *   `GET /enquiries/` - Query and filter all enquiries by status or channel with limit-bound parameters.
-*   **Production Observability:** Injecting trace-aggregating correlation IDs (`X-Correlation-ID`) across async task boundaries, logged in structured JSON formatting.
-*   **Standardized Error Infrastructure:** Consolidated catch-all exception filters formatting validation (`422`), HTTP (`404`), and internal server (`500`) failures into a unified contract: `{ success: false, error: { type, message } }`.
-*   **Premium Interactive API Documentation:** Beautiful, descriptive Swagger UI documentation complete with request/response schemas, field descriptions, and interactive examples.
+*   **Asynchronous Processing:** Non-blocking enquiry ingestion. Expensive tasks (like SOP matching) run via background threads to ensure fast API response times.
+*   **Event-Sourced Timeline Audit:** Every state change, SOP match, or manual intervention is immutably logged into a chronological timeline table, ensuring total observability.
+*   **Structured JSON Logging:** Fully machine-parseable logs ready for ELK/Datadog ingestion, featuring request correlation IDs (`X-Correlation-ID`) across middleware and execution threads.
+*   **Concurrency Race-Condition Guards:** Advanced background task validation prevents stale data overwrites if an agent manually escalates an enquiry mid-processing.
+*   **Domain Exception Handling:** Clean architectural boundaries. The service layer throws transport-agnostic domain exceptions (`EnquiryNotFoundError`), leaving the framework layer (`main.py`) to map them to HTTP responses.
 
 ---
 
-## 🛠️ Technology Stack
+## 📂 Project Structure
 
-*   **FastAPI** — High-performance async web framework
-*   **SQLAlchemy** — Standard Python Object-Relational Mapper (ORM)
-*   **SQLite** — Lightweight, serverless local SQL database
-*   **Pydantic v2** — Data parsing and schema level validation
-*   **Uvicorn** — Lightning-fast ASGI web server implementation
-
----
-
-## 📂 Project Architecture
-
-```
-backend/
+```text
+Backend/
 ├── app/
-│   ├── main.py                 # FastAPI application entry point, middleware, & global handlers
-│   ├── config.py               # Centralized configuration (Pydantic BaseSettings loading .env)
-│   ├── database.py             # SQLite connection engine and session factory
-│   ├── logging/
-│   │   ├── __init__.py
-│   │   └── config.py           # Thread-safe ContextVar correlation ID and JSON Formatter
-│   ├── mock_sops/
-│   │   ├── __init__.py         # Package interface re-exports
-│   │   ├── matcher.py          # SOP classification and response suggestion pure-logic
-│   │   ├── rules.py            # Hardcoded business category keyword rules
-│   │   └── templates.py        # suggested response message templates
-│   ├── models/
-│   │   ├── __init__.py         # Models registry imports
-│   │   ├── enquiry.py          # Enquiry database SQLAlchemy Model & Enums
-│   │   └── event.py            # Chronological Event database SQLAlchemy Model & Enums
-│   ├── schemas/
-│   │   ├── __init__.py
-│   │   └── enquiry.py          # Strict Pydantic operational validation schemas
-│   ├── routers/
-│   │   ├── __init__.py
-│   │   ├── health.py           # Health check endpoints verifying API + DB state
-│   │   └── enquiry.py          # Operational routers (singular & plural routes)
-│   └── utils/
-│       └── __init__.py
-├── docs/
-│   └── architecture.md         # Detailed architectural documentation & sequence flows
-├── tests/
-│   └── __init__.py
-├── closira.db                  # Local SQLite database (auto-generated)
-├── requirements.txt            # Pinned dependencies
-├── .env                        # Local environment parameters
-├── README.md                   # This overview file
-└── verify_backend.py           # Comprehensive automated E2E workflow verification suite
+│   ├── config.py             # Pydantic BaseSettings config
+│   ├── database.py           # SQLAlchemy setup and session factory
+│   ├── main.py               # FastAPI entry point, exception handlers, middleware
+│   ├── logging/              # Structured JSON formatting & configuration
+│   ├── mock_sops/            # Side-effect-free keyword matching & templates
+│   ├── models/               # SQLAlchemy ORM models (Enquiry, Event)
+│   ├── routers/              # HTTP layer (Thin controllers)
+│   ├── schemas/              # Pydantic validation (Input/Output contracts)
+│   ├── services/             # Core business logic & database transactions
+│   └── utils/                # Domain exceptions and helpers
+├── docs/                     # Architecture & Demo documentation
+├── tests/                    # Unit testing configurations
+├── verify_backend.py         # End-to-End automated validation script
+├── requirements.txt          # Pinned dependencies
+└── .env                      # Local environment configuration
 ```
 
 ---
 
-## 🚀 Setup & Installation
+## 🚀 Getting Started
 
-### 1. Prerequisite
-Ensure you have **Python 3.11+** installed on your system.
+### Prerequisites
+*   Python 3.10+
 
-### 2. Navigate to the backend directory
+### Local Setup
+
+1. **Clone the repository and enter the Backend directory**
+   ```bash
+   cd Backend
+   ```
+
+2. **Create and activate a virtual environment**
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On Mac/Linux:
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Start the API Server**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+5. **View Swagger Documentation**
+   Open your browser to: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+---
+
+## 🧪 Verification & Testing
+
+The project includes a robust End-to-End (E2E) automated verification script that tests:
+*   Root and Health metadata endpoints.
+*   Global validation schemas and custom 404 domain exceptions.
+*   The complete async lifecycle (Creation → SOP Match → Qualification).
+*   Concurrency protection (Manual escalations during async sleep).
+*   Chronological event sorting and query filtering bounds.
+
+Run the test suite against a live server:
 ```bash
-cd Backend
-```
-
-### 3. Initialize Virtual Environment
-Create and activate a isolated python virtual environment:
-```bash
-# Windows
-python -m venv venv
-.\venv\Scripts\activate
-
-# macOS / Linux
-python -m venv venv
-source venv/bin/activate
-```
-
-### 4. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 5. Configure Environments
-Create a `.env` file inside the `Backend/` directory (or use the preconfigured one):
-```env
-APP_NAME="Closira API"
-DATABASE_URL="sqlite:///./closira.db"
-DEBUG=True
-```
-
-### 6. Run the Application Server
-Start the Uvicorn ASGI production-ready reload server:
-```bash
-uvicorn app.main:app --reload
-```
-Upon launching, a beautiful ASCII Closira banner will display confirming database synchronization:
-```
-   _____ _                 _             
-  / ____| |               (_)            
- | |    | | ___  ___ _ __ _  __ _       
- | |    | |/ _ \/ __| '__| |/ _` |      
- | |____| | (_) \__ \ |  | | (_| |      
-  \_____|_|\___/|___/_|  |_|\__,_|      
-                                         
-AI-Powered Customer Communication Platform
-===========================================
-Version: 1.0.0
-Environment: Development / Debug
-Docs: http://127.0.0.1:8000/docs
-===========================================
+python verify_backend.py
 ```
 
 ---
 
-## 🔍 API Observability & Documentation
+## 📚 Documentation
 
-Once the server has successfully booted, access the self-documenting interface endpoints at:
-*   **Interactive Swagger UI:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) (Includes descriptive field guides and prefilled request examples)
-*   **ReDoc UI:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+For deeper dives into the system design and how to run a live demo:
+*   [Architecture Documentation](docs/architecture.md) — Explains the request lifecycle, scalability tradeoffs, and background task safety.
+*   [Demo Walkthrough Guide](docs/demo_walkthrough.md) — A step-by-step guide for testing the API workflows in Swagger.
 
 ---
 
-## 🧪 Running Automated E2E Verification Tests
+## ⚙️ Engineering Decisions & Tradeoffs
 
-Closira features a comprehensive automated integration and workflow suite mapping E2E lifecycles, timing, validations, filtering, and history.
+To fit within the scope of an internship project while maintaining high architectural standards, several practical tradeoffs were made:
 
-To execute the verification suite:
-1. Make sure your local Uvicorn development server is active on `http://127.0.0.1:8000`.
-2. Open a separate terminal window and execute:
-```bash
-.\venv\Scripts\python verify_backend.py
-```
-
-### What is tested:
-*   **Test 1 (Root & Health Check):** Verifies the server is operational and the SQLite engine is actively connected.
-*   **Test 2 (Unified Exception Infrastructure):** Triggers a 422 schema violation (empty names), an invalid channel value injection, and a 404 UUID lookup, verifying they conform to standard JSON error patterns.
-*   **Test 3 (E2E Enquiry Lifecycle):** Generates a customer pricing query, waits for the asynchronous BackgroundTask thread to match the SOP and qualify, schedules an operational follow-up window, triggers manual escalation, and audits the chronological event order of all 8 lifecycle events.
-*   **Test 4 (Query Listings & Filtering):** Creates concurrent queries and validates status filters (`status=escalated`, `status=qualified`), channel sorting, chronological newest-first outputs, and boundary limit parameters.
+*   **SQLite over PostgreSQL:** Used for simplicity and zero-configuration local setup. To account for this, the app uses indexes carefully and keeps transaction windows short.
+*   **In-Memory BackgroundTasks over Celery/Redis:** Used to avoid infrastructure bloat. To make this safe, explicit race condition guards and database rollbacks are implemented inside the task workers.
+*   **Static Mock SOPs over LLMs:** The `mock_sops` module uses a pure, deterministic keyword matcher. This isolates the logic cleanly, making it extremely easy to swap out with an external OpenAI/LLM call in the future without breaking the router or service layers.

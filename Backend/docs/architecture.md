@@ -1,156 +1,53 @@
-# Closira — Backend Architecture & Design Documentation
+# Closira Architecture Overview
 
-This document describes the technical architecture, design decisions, database schemas, and request lifecycles of the Closira backend platform.
+This document outlines the architectural patterns and engineering decisions utilized in the Closira backend.
 
----
+## 1. Request Lifecycle & Layered Architecture
 
-## 1. Architectural Style & Design Principles
+Closira utilizes a strict 3-tier architecture to separate transport concerns from business rules:
 
-Closira is built as a **clean, layered vertical slice architecture** designed for high maintainability, observability, and testability. It adheres strictly to the following principles:
+1. **Routers (`app/routers/`):** Thin HTTP controllers. They define the path, validate inputs/outputs via Pydantic schemas, and pass the data directly to the service layer. They do not write SQL or implement business logic.
+2. **Services (`app/services/`):** The core business layer. This is where transactions are managed, database sessions are utilized, and domain logic (like scheduling follow-ups or evaluating background states) is executed.
+3. **Database (`app/models/`):** SQLAlchemy ORM declarative models mapping Python classes to SQL tables.
 
-1. **Separation of Concerns (SoC):**
-    * **Interface Layer (Routers):** Extremely thin controllers (`app/routers/`) that handle only HTTP concerns (routing, status codes, query parameters, Pydantic parsing).
-    * **Business Logic Layer (Services):** All application-specific state transitions and processing algorithms reside in `app/services/`. These service functions are pure Python functions that accept database sessions, making them highly testable.
-    * **Domain Layer (Models/Schemas):** SQLAlchemy models define physical database structures, and Pydantic schemas define standard input/output contracts.
-    * **SOP Matching Engine (Pure Domain):** Isolated keyword rules and response templates under `app/mock_sops/` that operate purely on text inputs, detached from DB or network frameworks.
-2. **Append-Only Event Tracking (Audit Trail):**
-    * State changes, automated SOP matches, follow-ups, and manual escalations are stored chronologically in a separate `events` table. This creates an unmodifiable, structured audit timeline.
-3. **Observability First:**
-    * Standardized JSON log outputs are combined with context-scoped `correlation_id` values to enable tracing requests across asynchronous background borders.
-4. **Resilience & Consistent API Contracts:**
-    * Standardized global exception filters map all error responses (validation failures, HTTP errors, unexpected exceptions) to a single, unified JSON schema.
+## 2. Asynchronous Background Workflow
 
----
+Customer enquiries (WhatsApp, Email) are often erratic and require expensive processing (like hitting an LLM for classification or running complex SOP matching). 
 
-## 2. Request Lifecycle & Asynchronous Ingestion
+**The Flow:**
+* `POST /enquiries` immediately inserts the enquiry into the database with a `NEW` status and returns a `201 Created` to the client (under 50ms).
+* FastAPI's `BackgroundTasks` executes `process_enquiry_background()` asynchronously.
+* The background worker updates the status to `PROCESSING`, runs the simulated delay and SOP matcher, and transitions the state to `QUALIFIED` or `ESCALATED`.
 
-The ingestion and async classification of a customer enquiry trace the following sequence:
+### Concurrency Protection (The Race Condition Guard)
+Because the background task runs on a separate thread, a human operator could potentially trigger a manual escalation (`POST /enquiries/{id}/escalate`) *while* the background task is still running. 
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client
-    participant Router as app/routers/enquiry.py
-    participant Service as app/services/enquiry_service.py
-    participant DB as SQLite / SQLAlchemy
-    participant BG as FastAPI BackgroundTasks
-    participant Matcher as app/mock_sops/matcher.py
+To prevent the background task from blindly overwriting the human operator's state change, the worker **re-fetches the record from the database** after its delay. It verifies that `status == PROCESSING`. If the status has changed, it logs a warning and cleanly aborts the operation.
 
-    Client->>Router: POST /enquiry/ (customer_name, channel, message)
-    Note over Router: Validates input via Pydantic EnquiryCreate
-    Router->>Service: create_enquiry(db, enquiry_data)
-    
-    activate Service
-    Service->>DB: Insert Enquiry (status = 'new')
-    Service->>DB: Insert Event (event_type = 'enquiry_created')
-    Service-->>Router: return Enquiry record
-    deactivate Service
+## 3. Append-Only Event Timeline (Event Sourcing Pattern)
 
-    Router->>BG: Add task: process_enquiry_background(enquiry_id)
-    Router-->>Client: 201 Created (immediate response with Enquiry UUID)
-    
-    Note over BG: Async Execution (triggers after client response is sent)
-    activate BG
-    BG->>DB: Update Enquiry status = 'processing'
-    BG->>DB: Insert Event (event_type = 'status_updated' to 'processing')
-    Note over BG: 1.5s Artificial Delay (simulates processing latency)
-    
-    BG->>Matcher: match_sop(message)
-    activate Matcher
-    Note over Matcher: Checks message against mock_sops/rules.py
-    Matcher-->>BG: SOPMatchResult(category, matched_keyword, suggested_response)
-    deactivate Matcher
+Instead of only updating the `status` column and losing the history of *when* or *why* it changed, Closira employs an **Append-Only Event Timeline**.
 
-    alt Match Found
-        BG->>DB: Update Enquiry (status = 'qualified', sop_category, suggested_response)
-        BG->>DB: Insert Event (event_type = 'sop_matched')
-        BG->>DB: Insert Event (event_type = 'status_updated' to 'qualified')
-    else Match Not Found (Escalate)
-        BG->>DB: Update Enquiry (status = 'escalated')
-        BG->>DB: Insert Event (event_type = 'escalation_triggered')
-    end
-    deactivate BG
-```
+* Every operational action (creation, SOP match, escalation, follow-up) generates an immutable `Event` record.
+* These events form a chronological audit log accessible via `GET /enquiries/{id}/history`.
+* This design makes the system highly observable and allows for future analytics (e.g., measuring the exact time between an enquiry entering `PROCESSING` and being `QUALIFIED`).
 
----
+## 4. Structured JSON Logging & Tracing
 
-## 3. Database Schema
+Standard `print()` statements are insufficient for production debugging. Closira implements **Structured JSON Logging**:
+* All logs are emitted as JSON objects, making them instantly parseable by log aggregators (ELK, Datadog).
+* **Correlation IDs:** A global HTTP middleware intercepts every request, generates an `X-Correlation-ID`, and stores it in a thread-safe Python `ContextVar`. The custom JSON formatter automatically injects this ID into every log emitted during that request, allowing developers to trace the entire lifecycle of a single HTTP call across hundreds of concurrent users.
+* **Traceback Serialization:** Exceptions are fully serialized into the JSON payload (type, message, and formatted traceback stack) preventing silent errors.
 
-The database model leverages SQLite for a self-contained local installation. SQLAlchemy ORM models establish relationships with strict cascade and sorting rules.
+## 5. Domain Exceptions vs. HTTP Exceptions
 
-```mermaid
-erDiagram
-    ENQUIRIES ||--o{ EVENTS : "has historical timeline"
-    
-    ENQUIRIES {
-        string id PK "UUID4 String"
-        string customer_name "NOT NULL"
-        string channel "whatsapp | email | call"
-        string message "NOT NULL text"
-        string status "new | processing | qualified | follow_up_scheduled | escalated"
-        string sop_category "NULL / SOP category string"
-        string suggested_response "NULL / response template text"
-        datetime created_at "UTC timezone datetime"
-        datetime updated_at "UTC timezone datetime"
-    }
+**The Issue:** If a service explicitly raises `fastapi.HTTPException`, it becomes permanently glued to the FastAPI web framework. You couldn't reuse that service in a Kafka consumer, a CLI script, or a Celery worker without causing HTTP errors.
 
-    EVENTS {
-        string id PK "UUID4 String"
-        string enquiry_id FK "References ENQUIRIES.id"
-        string event_type "enquiry_created | status_updated | sop_matched | escalation_triggered | follow_up_scheduled"
-        string description "Human readable audit details"
-        datetime created_at "UTC timezone datetime"
-    }
-```
+**The Solution:** Services in Closira raise custom domain exceptions (e.g., `EnquiryNotFoundError` defined in `app/utils/exceptions.py`). `app/main.py` utilizes a centralized exception handler (`@app.exception_handler`) to map these domain exceptions to standard HTTP 404/500 JSON responses.
 
----
+## 6. Scalability Tradeoffs
 
-## 4. Observability & Logging Architecture
+To keep this project focused on backend engineering patterns rather than infrastructure DevOps, two main tradeoffs were made:
 
-Observability is a core pillar of the Closira backend. It combines correlation tracking with structured logs.
-
-### 4.1. Correlation IDs
-* A custom FastAPI middleware (`request_observability_middleware`) intercepts every HTTP request.
-* It extracts the `X-Correlation-ID` header if present, or generates a fresh `uuid4` string.
-* This correlation ID is stored in a thread-safe, async-safe Python context variable (`ContextVar`) defined in `app/logging/config.py`.
-
-### 4.2. JSON Formatter
-The log formatter (`JSONFormatter`) formats every log record as a structured JSON object:
-```json
-{
-  "timestamp": "2026-05-23T14:08:09.432218+00:00",
-  "level": "INFO",
-  "module": "app.services.enquiry_service",
-  "message": "Enquiry created: 7c031e71-...",
-  "correlation_id": "8d3e20e1-45a7-4bde-8f83-d23190ab7a22",
-  "extra": {
-    "enquiry_id": "7c031e71-837d-47e7-9e17-c6589a2487c1",
-    "channel": "whatsapp",
-    "customer_name": "Priya"
-  }
-}
-```
-Any logging call automatically includes the active `correlation_id` in its fields, connecting logs between the request-handling thread and the asynchronous FastAPI background thread executing the SOP matcher.
-
----
-
-## 5. Unified Error Architecture
-
-Instead of exposing default, generic stack traces or varying error response bodies, Closira implements a unified API contract for all failure paths.
-
-### 5.1. Standard Success & Error Formats
-All failure routes (HTTP 4xx/5xx) return a single, standard structure:
-```json
-{
-  "success": false,
-  "error": {
-    "type": "<error_type>",
-    "message": "<human_readable_message>"
-  }
-}
-```
-
-The application maps errors as follows:
-* **`RequestValidationError` (`422 Unprocessable Entity`):** Formats standard Pydantic errors into a readable semicolon-delimited string (e.g., `body -> customer_name: String should have at least 1 character`) and sets error type to `validation_error`.
-* **`HTTPException` (`404 Not Found` / `400 Bad Request`):** Captures standard HTTP errors and sets error type to `http_error`.
-* **`Exception` (`500 Internal Server Error`):** A catch-all filter that logs full stack traces internally to preserve debugging capabilities while returning a generic, safe response message (`An unexpected error occurred. Please contact system support.`) to avoid security leaks, setting error type to `internal_server_error`.
+1. **SQLite over PostgreSQL:** SQLite locks the entire database on writes. To mitigate this, database connections are managed properly, transactions are kept exceptionally short, and heavily filtered queries (like `status` and `channel`) are backed by database indexes.
+2. **In-Memory BackgroundTasks over Celery/Redis:** FastAPI's `BackgroundTasks` are stored in memory. If the server crashes, the queue is lost. In a real production environment, this would be replaced by a durable message broker (RabbitMQ/Redis) and a distributed worker system (Celery/ARQ), but the Python interface inside the service layer would remain entirely unchanged.

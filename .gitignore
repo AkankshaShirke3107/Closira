@@ -1,6 +1,33 @@
-venv/
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
 .env
+.env.local
+.env.test
+
+# SQLite Databases
 *.db
+*.sqlite3
+closira.db
+
+# IDE and Project Files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing and Coverage
 .pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
