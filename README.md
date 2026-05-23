@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Backend/docs/screenshots/header.png" width="100%" alt="Closira Banner"/>
+</p>
+
 # Closira
 
 An event-driven AI-powered CRM that transforms raw customer enquiries into structured, prioritized, and auditable workflows in real time.
@@ -7,14 +11,6 @@ Built with:
 - Event-sourced architecture
 - Background workflow orchestration
 - Mobile-first operations dashboard
-
-<p align="center">
-  <img src="Backend/docs/screenshots/header.png" width="100%" alt="Closira Banner"/>
-</p>
-
-# Closira: Event-Driven Enquiry Intelligence Engine
-
-Closira is a production-grade full-stack system designed to ingest, classify, and orchestrate inbound customer communications. It implements a decoupled service architecture, append-only event sourcing for state transitions, and a deterministic AI engine for real-time risk scoring and priority routing.
 
 ---
 
