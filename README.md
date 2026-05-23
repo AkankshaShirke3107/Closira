@@ -13,7 +13,7 @@
 
 ## Video Walkthrough
 
-> **[Click here to watch the full system walkthrough](Backend/docs/screenshots/Video.mp4)**
+> **[Click here to watch the full system walkthrough (Downloads or streams directly)](Backend/docs/screenshots/Video.mp4?raw=true)**
 
 ---
 
