@@ -65,23 +65,6 @@ Traditional CRUD applications fail when managing complex, asynchronous workflows
 
 The backend strictly adheres to Domain-Driven Design (DDD) principles. The HTTP routing layer acts exclusively as a transport protocol, completely insulated from the domain logic. All state mutations occur strictly within isolated transaction boundaries.
 
-```text
-[ React Native Thin Client ]
-             │
-             ▼
-[ FastAPI Routing Layer ] -> Domain Validation & Transport
-             │
-             ▼
-[ Core Service Layer ] -> Transaction Management & Business Logic
-             │
-      ┌──────┴──────┐
-      ▼             ▼
-[ SQLite DB ]  [ Background Workers ]
-   (ORM)         (SOP matching, async I/O)
-      │
-      ▼
-[ Intelligence Sidecar ]
-```
 
 ---
 
