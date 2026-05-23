@@ -27,21 +27,9 @@ Closira is designed with a strong emphasis on production-inspired engineering pr
 
 ## 📸 Screenshots
 
-### Architecture Diagram
+### Architecture & Workflow Diagram
 <p align="center">
-  <img src="Backend/docs/screenshots/architecture.png" width="850" alt="Architecture Flow"/>
-</p>
-
-<!-- 
-### API Swagger Documentation
-<p align="center">
-  <img src="Backend/docs/screenshots/swagger.png" width="850" alt="Swagger API"/>
-</p>
--->
-
-### Event Workflow Timeline
-<p align="center">
-  <img src="Backend/docs/screenshots/workflow.png" width="850" alt="Timeline Audit"/>
+  <img src="Backend/docs/screenshots/architecture.png" width="850" alt="Closira Architecture and Workflow"/>
 </p>
 
 <!-- 
