@@ -1,7 +1,7 @@
 <h1 align="center">Closira Backend</h1>
 
 <p align="center">
-  <img src="Backend/docs/screenshots/header.png" width="900" alt="Closira Banner"/>
+  <img src="Backend/docs/screenshots/header.png" width="100%" alt="Closira Banner"/>
 </p>
 
 <p align="center">
