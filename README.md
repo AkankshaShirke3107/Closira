@@ -13,7 +13,7 @@
 
 ## Video Walkthrough
 
-> **[Click here to watch the full system walkthrough (Downloads or streams directly)](Backend/docs/screenshots/Video.mp4?raw=true)**
+https://github.com/user-attachments/assets/98abddc7-de7c-4346-a3c6-5ca82a06a4a0
 
 ---
 
