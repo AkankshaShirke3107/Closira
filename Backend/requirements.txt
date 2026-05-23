@@ -1,0 +1,21 @@
+# ===========================================
+# Closira — Python Dependencies
+# ===========================================
+
+# Web framework
+fastapi==0.115.6
+
+# ASGI server
+uvicorn==0.34.0
+
+# ORM for database operations
+sqlalchemy==2.0.36
+
+# Pydantic settings management (reads .env files)
+pydantic-settings==2.7.0
+
+# .env file loader
+python-dotenv==1.0.1
+
+# HTTP test client (used by tests)
+httpx==0.28.1
